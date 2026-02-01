@@ -30,7 +30,6 @@ import br.com.karol.sistema.domain.Usuario;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
-
 @RequestMapping("/clientes")
 @RestController
 @AllArgsConstructor
@@ -39,26 +38,24 @@ public class ClienteController {
     private final EmailSendService emailSender;
     private final ClienteService service;
 
-    /* Rotas para clientes não atenticados. São clientes que não possuem um 
-    usuário e são cadastrados pelos funcionários da clínica em atendimento 
-    direto com o cliente */
-
+    /*
+     * Rotas para clientes não atenticados. São clientes que não possuem um
+     * usuário e são cadastrados pelos funcionários da clínica em atendimento
+     * direto com o cliente
+     */
 
     @PostMapping("/email")
-    public ResponseEntity<DadosCompletosClienteDTO> emailVerification(
-        @RequestBody @Valid EmailDTO dto
-    ) {
+    public ResponseEntity<DadosCompletosClienteDTO> emailVerification(@RequestBody @Valid EmailDTO dto) {
         emailSender.sendEmailVerification(dto.getEmail());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/usuario")
     public ResponseEntity<DadosCompletosClienteDTO> criarClienteUsuario(
-        @RequestBody @Valid CriarUsuarioClienteDTO dados
-    ) {
+            @RequestBody @Valid CriarUsuarioClienteDTO dados) {
         return ResponseEntity.ok(service.salvarClienteComUsuario(dados));
     }
-    
+
     @PostMapping
     public ResponseEntity<DadosCompletosClienteDTO> criarCliente(@RequestBody @Valid CriarClienteDTO cliente) {
         DadosCompletosClienteDTO clienteSalvo = service.salvarCliente(cliente);
@@ -67,12 +64,11 @@ public class ClienteController {
 
     @GetMapping
     public ResponseEntity<Page<DadosClienteDTO>> listarClientes(
-        @RequestParam(required = false) String nome,
-        @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @RequestParam(required = false) String nome,
+            @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(service.listarTodosClientes(nome, pageable));
+                .status(HttpStatus.OK)
+                .body(service.listarTodosClientes(nome, pageable));
     }
 
     @GetMapping("/{clienteId}")
@@ -81,20 +77,17 @@ public class ClienteController {
     }
 
     @PutMapping("/{clienteId}")
-    public ResponseEntity<DadosCompletosClienteDTO> atualizarCliente(
-        @PathVariable Long clienteId, 
-        @RequestBody AtualizarClienteDTO dados
-    ) {
+    public ResponseEntity<DadosCompletosClienteDTO> atualizarCliente(@PathVariable Long clienteId,
+            @RequestBody AtualizarClienteDTO dados) {
         return ResponseEntity.ok(service.editarContatoCliente(clienteId, dados));
     }
 
     @PutMapping("/{clienteId}/endereco")
     public ResponseEntity<DadosCompletosClienteDTO> atualizarEnderecoCliente(
-        @PathVariable Long clienteId, 
-        @RequestBody @Valid EnderecoDTO dadosEndereco
-    ) {
+            @PathVariable Long clienteId,
+            @RequestBody @Valid EnderecoDTO dadosEndereco) {
         return ResponseEntity.ok(
-            service.editarEnderecoCliente(clienteId, dadosEndereco));
+                service.editarEnderecoCliente(clienteId, dadosEndereco));
     }
 
     @DeleteMapping("/{clienteId}")
@@ -113,21 +106,19 @@ public class ClienteController {
 
     @PutMapping("/me")
     public ResponseEntity<DadosCompletosClienteDTO> atualizarClienteMe(
-        @AuthenticationPrincipal Usuario usuario, 
-        @RequestBody AtualizarClienteDTO dados
-    ) {
+            @AuthenticationPrincipal Usuario usuario,
+            @RequestBody AtualizarClienteDTO dados) {
         Cliente cliente = service.getClienteByUsuarioId(usuario.getId());
         return ResponseEntity.ok(
-            service.editarContatoClienteAtual(cliente, dados));
+                service.editarContatoClienteAtual(cliente, dados));
     }
 
     @PutMapping("/me/endereco")
     public ResponseEntity<DadosCompletosClienteDTO> atualizarEnderecoClienteMe(
-        @AuthenticationPrincipal Usuario usuario, 
-        @RequestBody @Valid EnderecoDTO dadosEndereco
-    ) {
+            @AuthenticationPrincipal Usuario usuario,
+            @RequestBody @Valid EnderecoDTO dadosEndereco) {
         Cliente cliente = service.getClienteByUsuarioId(usuario.getId());
         return ResponseEntity.ok(
-            service.editarEnderecoClienteAtual(cliente, dadosEndereco));
+                service.editarEnderecoClienteAtual(cliente, dadosEndereco));
     }
 }
