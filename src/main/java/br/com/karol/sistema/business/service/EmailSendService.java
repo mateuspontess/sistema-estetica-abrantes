@@ -11,35 +11,34 @@ import br.com.karol.sistema.domain.valueobjects.Email;
 
 @Service
 public class EmailSendService {
-    
+
     private String remetente;
     private final JavaMailSender javaMailSender;
     private final EmailFactory emailMapper;
-    private final TokenService tokenService;
+    private final VerificationService verificationService;
 
     public EmailSendService(
-        @Value("${spring.mail.from}") String remetente,
-        JavaMailSender javaMailSender,
-        EmailFactory emailMapper,
-        TokenService tokenService
-    ) {
+            @Value("${spring.mail.from}") String remetente,
+            JavaMailSender javaMailSender,
+            EmailFactory emailMapper,
+            VerificationService verificationService) {
         this.remetente = remetente;
         this.javaMailSender = javaMailSender;
         this.emailMapper = emailMapper;
-        this.tokenService = tokenService;
+        this.verificationService = verificationService;
     }
 
-
+    @Async
     public void sendEmailVerification(String input) {
         Email email = emailMapper.createEmail(input); // valida o email
-        String emailToken = tokenService.generateToken(email.getValue());
+        String code = verificationService.createCode(email.getValue());
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
         emailMessage.setFrom(this.remetente);
         emailMessage.setSubject("Verificação de email");
-        emailMessage.setText(emailToken);
+        emailMessage.setText("Seu código de verificação é: " + code);
         emailMessage.setTo(email.getValue());
-        
+
         javaMailSender.send(emailMessage);
     }
 

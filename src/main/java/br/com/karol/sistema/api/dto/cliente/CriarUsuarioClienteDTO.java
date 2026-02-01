@@ -17,7 +17,7 @@ public class CriarUsuarioClienteDTO {
 
     @NotBlank
     private String nome;
-    
+
     @NotBlank
     @Size(min = 3, max = 20)
     private String login;
@@ -29,7 +29,7 @@ public class CriarUsuarioClienteDTO {
     @NotBlank
     @Size(min = 11, max = 14)
     private String cpf;
-    
+
     @NotBlank
     @Size(min = 11, max = 15)
     private String telefone;
@@ -38,5 +38,8 @@ public class CriarUsuarioClienteDTO {
     private EnderecoDTO endereco;
 
     @NotBlank
-    private String emailConfirmationToken;
+    private String email;
+
+    @NotBlank
+    private String verificationCode;
 }

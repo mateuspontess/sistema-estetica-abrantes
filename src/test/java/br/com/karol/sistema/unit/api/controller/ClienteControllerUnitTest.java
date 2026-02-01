@@ -59,7 +59,6 @@ public class ClienteControllerUnitTest {
 
     private static final Cliente CLIENTE_DEFAULT = ClienteTestFactory.getCliente();
 
-
     @Autowired
     private MockMvc mvc;
 
@@ -88,7 +87,7 @@ public class ClienteControllerUnitTest {
     @BeforeAll
     static void setup() {
         ReflectionTestUtils.setField(CLIENTE_DEFAULT, "usuario", UsuarioTestFactory.getUsuarioAdmin());
-    }   
+    }
 
     @Test
     void testEmailVerification() throws IOException, Exception {
@@ -97,16 +96,16 @@ public class ClienteControllerUnitTest {
 
         // act
         ControllerTestUtils.postRequest(
-            mvc, 
-            BASE_URL + "/email", 
-            emailDTOJson.write(requestBody).getJson()
-        )
+                mvc,
+                BASE_URL + "/email",
+                emailDTOJson.write(requestBody).getJson())
 
-        // assert
-        .andExpect(status().isNoContent());
+                // assert
+                .andExpect(status().isNoContent());
 
         verify(emailSendService).sendEmailVerification(anyString());
     }
+
     @Test
     void testEmailVerification_comBodyInvalido() throws IOException, Exception {
         // arrange
@@ -114,13 +113,12 @@ public class ClienteControllerUnitTest {
 
         // act
         ControllerTestUtils.postRequest(
-            mvc, 
-            BASE_URL + "/email", 
-            emailDTOJson.write(requestBodyBlank).getJson()
-        )
+                mvc,
+                BASE_URL + "/email",
+                emailDTOJson.write(requestBodyBlank).getJson())
 
-        // assert
-        .andExpect(status().isBadRequest());
+                // assert
+                .andExpect(status().isBadRequest());
 
         verifyNoInteractions(emailSendService);
     }
@@ -129,231 +127,231 @@ public class ClienteControllerUnitTest {
     void testCriarClienteComUsuario() throws Exception {
         // arrange
         var requestBody = new CriarUsuarioClienteDTO(
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getUsuario().getLogin(),
-            CLIENTE_DEFAULT.getUsuario().getSenha(),
-            CLIENTE_DEFAULT.getCpf(),
-            CLIENTE_DEFAULT.getTelefone(),
-            new EnderecoDTO(
-                "rua",
-                "numero",
-                "cidade",
-                "bairro",
-                "estado"
-            ),
-            CLIENTE_DEFAULT.getEmail()
-        );
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getUsuario().getLogin(),
+                CLIENTE_DEFAULT.getUsuario().getSenha(),
+                CLIENTE_DEFAULT.getCpf(),
+                CLIENTE_DEFAULT.getTelefone(),
+                new EnderecoDTO(
+                        "rua",
+                        "numero",
+                        "cidade",
+                        "bairro",
+                        "estado"),
+                CLIENTE_DEFAULT.getEmail(),
+                "123456");
 
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
         when(service.salvarClienteComUsuario(any())).thenReturn(responseBody);
 
         // act
         ControllerTestUtils.postRequest(
-            mvc, 
-            BASE_URL + "/usuario", 
-            criarUsuarioClienteDTOJson.write(requestBody).getJson()
-        )
+                mvc,
+                BASE_URL + "/usuario",
+                criarUsuarioClienteDTOJson.write(requestBody).getJson())
 
-        // assert
-        .andExpect(status().isOk());
+                // assert
+                .andExpect(status().isOk());
 
         verify(service).salvarClienteComUsuario(any(requestBody.getClass()));
     }
+
     @Test
     void testCriarClienteUsuario_comBodyInvalido01() throws Exception {
         // arrange
         var requestBody = new CriarUsuarioClienteDTO(
-            TestConstants.NOME_VAZIO,
-            TestConstants.LOGIN_MUITO_PEQUENO,
-            TestConstants.SENHA_MUITO_GRANDE,
-            TestConstants.CPF_MUITO_PEQUENO,
-            TestConstants.TELEFONE_MUITO_PEQUENO,
-            null,
-            TestConstants.EMAIL_VAZIO
-        );
+                TestConstants.NOME_VAZIO,
+                TestConstants.LOGIN_MUITO_PEQUENO,
+                TestConstants.SENHA_MUITO_GRANDE,
+                TestConstants.CPF_MUITO_PEQUENO,
+                TestConstants.TELEFONE_MUITO_PEQUENO,
+                null,
+                TestConstants.EMAIL_VAZIO,
+                "");
 
         // act
         ControllerTestUtils.postRequest(
-            mvc, 
-            BASE_URL + "/usuario", 
-            criarUsuarioClienteDTOJson.write(requestBody).getJson()
-        )
+                mvc,
+                BASE_URL + "/usuario",
+                criarUsuarioClienteDTOJson.write(requestBody).getJson())
 
-        // assert
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.fields").exists())
-        .andExpect(jsonPath("$.fields.nome").exists())
-        .andExpect(jsonPath("$.fields.login").exists())
-        .andExpect(jsonPath("$.fields.senha").exists())
-        .andExpect(jsonPath("$.fields.cpf").exists())
-        .andExpect(jsonPath("$.fields.telefone").exists())
-        .andExpect(jsonPath("$.fields.emailConfirmationToken").exists())
-        .andExpect(jsonPath("$.fields.endereco").exists());
+                // assert
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fields").exists())
+                .andExpect(jsonPath("$.fields.nome").exists())
+                .andExpect(jsonPath("$.fields.login").exists())
+                .andExpect(jsonPath("$.fields.senha").exists())
+                .andExpect(jsonPath("$.fields.cpf").exists())
+                .andExpect(jsonPath("$.fields.telefone").exists())
+                .andExpect(jsonPath("$.fields.email").exists())
+                .andExpect(jsonPath("$.fields.verificationCode").exists())
+                .andExpect(jsonPath("$.fields.endereco").exists());
 
         verifyNoInteractions(service);
     }
+
     @Test
     void testCriarUsuarioCliente_comBodyInvalido02() throws Exception {
         // arrange
         var requestBody = new CriarUsuarioClienteDTO(
-            TestConstants.NOME_VAZIO,
-            TestConstants.LOGIN_MUITO_GRANDE,
-            TestConstants.SENHA_MUITO_GRANDE,
-            TestConstants.CPF_MUITO_GRANDE,
-            TestConstants.TELEFONE_MUITO_GRANDE,
-            null,
-            TestConstants.EMAIL_VAZIO
-        );
+                TestConstants.NOME_VAZIO,
+                TestConstants.LOGIN_MUITO_GRANDE,
+                TestConstants.SENHA_MUITO_GRANDE,
+                TestConstants.CPF_MUITO_GRANDE,
+                TestConstants.TELEFONE_MUITO_GRANDE,
+                null,
+                TestConstants.EMAIL_VAZIO,
+                "");
 
         // act
         ControllerTestUtils.postRequest(
-            mvc, 
-            BASE_URL + "/usuario", 
-            criarUsuarioClienteDTOJson.write(requestBody).getJson()
-        )
+                mvc,
+                BASE_URL + "/usuario",
+                criarUsuarioClienteDTOJson.write(requestBody).getJson())
 
-        // assert
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.fields").exists())
-        .andExpect(jsonPath("$.fields.nome").exists())
-        .andExpect(jsonPath("$.fields.login").exists())
-        .andExpect(jsonPath("$.fields.senha").exists())
-        .andExpect(jsonPath("$.fields.cpf").exists())
-        .andExpect(jsonPath("$.fields.telefone").exists())
-        .andExpect(jsonPath("$.fields.emailConfirmationToken").exists())
-        .andExpect(jsonPath("$.fields.endereco").exists());
+                // assert
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fields").exists())
+                .andExpect(jsonPath("$.fields.nome").exists())
+                .andExpect(jsonPath("$.fields.login").exists())
+                .andExpect(jsonPath("$.fields.senha").exists())
+                .andExpect(jsonPath("$.fields.cpf").exists())
+                .andExpect(jsonPath("$.fields.telefone").exists())
+                .andExpect(jsonPath("$.fields.email").exists())
+                .andExpect(jsonPath("$.fields.verificationCode").exists())
+                .andExpect(jsonPath("$.fields.endereco").exists());
 
         verifyNoInteractions(service);
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testCriarCliente_comRolesAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new CriarClienteDTO(
-            CLIENTE_DEFAULT.getCpf(),
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail(),
-            new EnderecoDTO(CLIENTE_DEFAULT.getEndereco())
-        );
-        
+                CLIENTE_DEFAULT.getCpf(),
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail(),
+                new EnderecoDTO(CLIENTE_DEFAULT.getEndereco()));
+
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
         when(service.salvarCliente(any())).thenReturn(responseBody);
 
         // act
         ControllerTestUtils.postRequest(mvc, BASE_URL, criarClienteDTO.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.cpf").exists())
-            .andExpect(jsonPath("$.nome").exists())
-            .andExpect(jsonPath("$.telefone").exists())
-            .andExpect(jsonPath("$.email").exists())
-            .andExpect(jsonPath("$.endereco").exists())
-            .andExpect(jsonPath("$.endereco.rua").exists())
-            .andExpect(jsonPath("$.endereco.numero").exists())
-            .andExpect(jsonPath("$.endereco.cidade").exists())
-            .andExpect(jsonPath("$.endereco.bairro").exists())
-            .andExpect(jsonPath("$.endereco.estado").exists());
+                // assert
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.nome").exists())
+                .andExpect(jsonPath("$.telefone").exists())
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.endereco").exists())
+                .andExpect(jsonPath("$.endereco.rua").exists())
+                .andExpect(jsonPath("$.endereco.numero").exists())
+                .andExpect(jsonPath("$.endereco.cidade").exists())
+                .andExpect(jsonPath("$.endereco.bairro").exists())
+                .andExpect(jsonPath("$.endereco.estado").exists());
 
         verify(service).salvarCliente(any());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testCriarCliente_comRolesNaoAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new CriarClienteDTO(
-            CLIENTE_DEFAULT.getCpf(),
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail(),
-            new EnderecoDTO(CLIENTE_DEFAULT.getEndereco())
-        );
-        
+                CLIENTE_DEFAULT.getCpf(),
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail(),
+                new EnderecoDTO(CLIENTE_DEFAULT.getEndereco()));
+
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
         when(service.salvarCliente(any())).thenReturn(responseBody);
 
         // act
         ControllerTestUtils.postRequest(mvc, BASE_URL, criarClienteDTO.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isForbidden());
 
         verifyNoInteractions(service);
     }
+
     @Test
     @WithMockUser
     void testCriarCliente_comBodyInvalido() throws IOException, Exception {
         // arrange
         var requestBody = new CriarClienteDTO(
-            TestConstants.CPF_MUITO_PEQUENO, // menos de 11 caracteres
-            null,
-            TestConstants.TELEFONE_MUITO_PEQUENO,
-            null,
-            null
-        );
-        
+                TestConstants.CPF_MUITO_PEQUENO, // menos de 11 caracteres
+                null,
+                TestConstants.TELEFONE_MUITO_PEQUENO,
+                null,
+                null);
+
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
         when(service.salvarCliente(any())).thenReturn(responseBody);
 
         // act
         ControllerTestUtils.postRequest(mvc, BASE_URL, criarClienteDTO.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.fields.cpf").exists())
-            .andExpect(jsonPath("$.fields.nome").exists())
-            .andExpect(jsonPath("$.fields.telefone").exists())
-            .andExpect(jsonPath("$.fields.email").exists())
-            .andExpect(jsonPath("$.fields.endereco").exists());
+                // assert
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fields.cpf").exists())
+                .andExpect(jsonPath("$.fields.nome").exists())
+                .andExpect(jsonPath("$.fields.telefone").exists())
+                .andExpect(jsonPath("$.fields.email").exists())
+                .andExpect(jsonPath("$.fields.endereco").exists());
 
         verifyNoInteractions(service);
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testListarClientes_comRolesAutorizadas() throws IOException, Exception {
         // arrange
-        var responseBody = new PageImpl<>(List.of(new DadosClienteDTO(CLIENTE_DEFAULT))); 
+        var responseBody = new PageImpl<>(List.of(new DadosClienteDTO(CLIENTE_DEFAULT)));
         when(service.listarTodosClientes(any(), any())).thenReturn(responseBody);
 
         // act
         ControllerTestUtils.getRequest(mvc, BASE_URL)
-            // assert
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content[0]id").exists())
-            .andExpect(jsonPath("$.content[0]cpf").exists())
-            .andExpect(jsonPath("$.content[0]nome").exists());
+                // assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0]id").exists())
+                .andExpect(jsonPath("$.content[0]cpf").exists())
+                .andExpect(jsonPath("$.content[0]nome").exists());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testListarClientes_comRolesNaoAutorizadas() throws IOException, Exception {
         // act
         ControllerTestUtils.getRequest(mvc, BASE_URL)
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isForbidden());
 
         verifyNoInteractions(service);
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testListarClientes_comQueryParams() throws IOException, Exception {
         // arrange
         var PARAM_NOME = "any";
-        var responseBody = new PageImpl<>(List.of(new DadosClienteDTO(CLIENTE_DEFAULT))); 
+        var responseBody = new PageImpl<>(List.of(new DadosClienteDTO(CLIENTE_DEFAULT)));
         when(service.listarTodosClientes(eq(PARAM_NOME), any(Pageable.class))).thenReturn(responseBody);
 
         // act
         mvc.perform(get(BASE_URL)
-            .param("nome", PARAM_NOME)
-        )
-        // assert
-        .andExpect(status().isOk());
+                .param("nome", PARAM_NOME))
+                // assert
+                .andExpect(status().isOk());
 
         verify(service).listarTodosClientes(eq(PARAM_NOME), any(Pageable.class));
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testBuscarCliente_comRolesAutorizadas() throws IOException, Exception {
         // arrange
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
@@ -361,17 +359,18 @@ public class ClienteControllerUnitTest {
 
         // act
         ControllerTestUtils.getRequest(mvc, BASE_URL.concat("/1"))
-            // assert
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.cpf").exists())
-            .andExpect(jsonPath("$.nome").exists())
-            .andExpect(jsonPath("$.telefone").exists())
-            .andExpect(jsonPath("$.email").exists())
-            .andExpect(jsonPath("$.endereco").exists());
+                // assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.nome").exists())
+                .andExpect(jsonPath("$.telefone").exists())
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.endereco").exists());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testBuscarCliente_comRolesNaoAutorizadas() throws IOException, Exception {
         // arrange
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
@@ -379,63 +378,62 @@ public class ClienteControllerUnitTest {
 
         // act
         ControllerTestUtils.getRequest(mvc, BASE_URL.concat("/1"))
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isForbidden());
 
         verifyNoInteractions(service);
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testAtualizarCliente_comRolesAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new CriarClienteDTO(
-            CLIENTE_DEFAULT.getCpf(),
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail(),
-            new EnderecoDTO(CLIENTE_DEFAULT.getEndereco())
-        );
-        
+                CLIENTE_DEFAULT.getCpf(),
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail(),
+                new EnderecoDTO(CLIENTE_DEFAULT.getEndereco()));
+
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
         when(service.salvarCliente(any())).thenReturn(responseBody);
 
         // act
         ControllerTestUtils.postRequest(mvc, BASE_URL, criarClienteDTO.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.cpf").exists())
-            .andExpect(jsonPath("$.nome").exists())
-            .andExpect(jsonPath("$.telefone").exists())
-            .andExpect(jsonPath("$.email").exists())
-            .andExpect(jsonPath("$.endereco").exists())
-            .andExpect(jsonPath("$.endereco.rua").exists())
-            .andExpect(jsonPath("$.endereco.numero").exists())
-            .andExpect(jsonPath("$.endereco.cidade").exists())
-            .andExpect(jsonPath("$.endereco.bairro").exists())
-            .andExpect(jsonPath("$.endereco.estado").exists());
+                // assert
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.nome").exists())
+                .andExpect(jsonPath("$.telefone").exists())
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.endereco").exists())
+                .andExpect(jsonPath("$.endereco.rua").exists())
+                .andExpect(jsonPath("$.endereco.numero").exists())
+                .andExpect(jsonPath("$.endereco.cidade").exists())
+                .andExpect(jsonPath("$.endereco.bairro").exists())
+                .andExpect(jsonPath("$.endereco.estado").exists());
 
         verify(service).salvarCliente(any());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testAtualizarCliente_comRolesNaoAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new AtualizarClienteDTO(
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail()
-        );
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail());
 
         // act
         ControllerTestUtils.putRequest(mvc, BASE_URL, atualizarClienteDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isForbidden());
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testAtualizarEnderecoCliente_comRolesAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new EnderecoDTO(CLIENTE_DEFAULT.getEndereco());
@@ -443,38 +441,40 @@ public class ClienteControllerUnitTest {
         when(service.editarEnderecoCliente(anyLong(), any())).thenReturn(responseBody);
 
         // act
-        ControllerTestUtils.putRequest(mvc, (BASE_URL.concat("/1/endereco")), enderecoDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.cpf").exists())
-            .andExpect(jsonPath("$.nome").exists())
-            .andExpect(jsonPath("$.telefone").exists())
-            .andExpect(jsonPath("$.email").exists())
-            .andExpect(jsonPath("$.endereco").exists())
-            .andExpect(jsonPath("$.endereco.rua").exists())
-            .andExpect(jsonPath("$.endereco.numero").exists())
-            .andExpect(jsonPath("$.endereco.cidade").exists())
-            .andExpect(jsonPath("$.endereco.bairro").exists())
-            .andExpect(jsonPath("$.endereco.estado").exists());
+        ControllerTestUtils
+                .putRequest(mvc, (BASE_URL.concat("/1/endereco")), enderecoDTOJson.write(requestBody).getJson())
+                // assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.nome").exists())
+                .andExpect(jsonPath("$.telefone").exists())
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.endereco").exists())
+                .andExpect(jsonPath("$.endereco.rua").exists())
+                .andExpect(jsonPath("$.endereco.numero").exists())
+                .andExpect(jsonPath("$.endereco.cidade").exists())
+                .andExpect(jsonPath("$.endereco.bairro").exists())
+                .andExpect(jsonPath("$.endereco.estado").exists());
 
         verify(service).editarEnderecoCliente(anyLong(), any());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testAtualizarEnderecoCliente_comRolesNaoAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new AtualizarClienteDTO(
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail()
-        );
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail());
 
         // act
         ControllerTestUtils.putRequest(mvc, BASE_URL, atualizarClienteDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isForbidden());
     }
+
     @Test
     @WithMockUser
     void testAtualizarEnderecoCliente_comBodyInvalido() throws IOException, Exception {
@@ -484,32 +484,34 @@ public class ClienteControllerUnitTest {
         when(service.editarEnderecoCliente(anyLong(), any())).thenReturn(responseBody);
 
         // act
-        ControllerTestUtils.putRequest(mvc, (BASE_URL.concat("/1/endereco")), enderecoDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isBadRequest());
+        ControllerTestUtils
+                .putRequest(mvc, (BASE_URL.concat("/1/endereco")), enderecoDTOJson.write(requestBody).getJson())
+                // assert
+                .andExpect(status().isBadRequest());
 
         verifyNoInteractions(service);
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testDeletarCliente_comRolesAutorizadas() throws IOException, Exception {
         // act
         ControllerTestUtils.deleteMapping(mvc, BASE_URL.concat("/1"))
-            // assert
-            .andExpect(status().isNoContent());
-    }
-    @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
-    void testDeletarCliente_comRolesNaoAutorizadas() throws IOException, Exception {
-        // act
-        ControllerTestUtils.deleteMapping(mvc, BASE_URL.concat("/1"))
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isNoContent());
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
+    void testDeletarCliente_comRolesNaoAutorizadas() throws IOException, Exception {
+        // act
+        ControllerTestUtils.deleteMapping(mvc, BASE_URL.concat("/1"))
+                // assert
+                .andExpect(status().isForbidden());
+    }
+
+    @TestTemplate
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testBuscarClienteMe_comRolesAutorizadas() throws IOException, Exception {
         // arrange
         var responseBody = CLIENTE_DEFAULT;
@@ -517,76 +519,76 @@ public class ClienteControllerUnitTest {
 
         // act
         ControllerTestUtils.getRequest(mvc, ME_ROUTE)
-            // assert
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.cpf").exists())
-            .andExpect(jsonPath("$.nome").exists())
-            .andExpect(jsonPath("$.telefone").exists())
-            .andExpect(jsonPath("$.email").exists())
-            .andExpect(jsonPath("$.endereco").exists());
+                // assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.nome").exists())
+                .andExpect(jsonPath("$.telefone").exists())
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.endereco").exists());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testBuscarClienteMe_comRolesNaoAutorizadas() throws IOException, Exception {
         // act
         ControllerTestUtils.getRequest(mvc, ME_ROUTE)
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isForbidden());
 
         verifyNoInteractions(service);
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void atualizarClienteMe_comRolesAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new AtualizarClienteDTO(
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail()
-        );
-        
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail());
+
         var responseBody = new DadosCompletosClienteDTO(CLIENTE_DEFAULT);
         when(service.getClienteByUsuarioId(any())).thenReturn(CLIENTE_DEFAULT);
         when(service.editarContatoClienteAtual(any(Cliente.class), any())).thenReturn(responseBody);
 
         // act
         ControllerTestUtils.putRequest(mvc, ME_ROUTE, atualizarClienteDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.cpf").exists())
-            .andExpect(jsonPath("$.nome").exists())
-            .andExpect(jsonPath("$.telefone").exists())
-            .andExpect(jsonPath("$.email").exists())
-            .andExpect(jsonPath("$.endereco").exists())
-            .andExpect(jsonPath("$.endereco.rua").exists())
-            .andExpect(jsonPath("$.endereco.numero").exists())
-            .andExpect(jsonPath("$.endereco.cidade").exists())
-            .andExpect(jsonPath("$.endereco.bairro").exists())
-            .andExpect(jsonPath("$.endereco.estado").exists());
+                // assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.nome").exists())
+                .andExpect(jsonPath("$.telefone").exists())
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.endereco").exists())
+                .andExpect(jsonPath("$.endereco.rua").exists())
+                .andExpect(jsonPath("$.endereco.numero").exists())
+                .andExpect(jsonPath("$.endereco.cidade").exists())
+                .andExpect(jsonPath("$.endereco.bairro").exists())
+                .andExpect(jsonPath("$.endereco.estado").exists());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testAtualizarClienteMe_comRolesNaoAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new AtualizarClienteDTO(
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail()
-        );
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail());
 
         // act
         ControllerTestUtils.putRequest(mvc, ME_ROUTE, atualizarClienteDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isForbidden());
+                // assert
+                .andExpect(status().isForbidden());
 
         verifyNoInteractions(service);
     }
 
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testAtualizarEnderecoClienteMe_comRolesAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new EnderecoDTO(CLIENTE_DEFAULT.getEndereco());
@@ -596,43 +598,44 @@ public class ClienteControllerUnitTest {
 
         // act
         ControllerTestUtils.putRequest(
-            mvc, 
-            (ME_ROUTE.concat("/endereco")), 
-            enderecoDTOJson.write(requestBody).getJson()
-        )
-        // assert
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").exists())
-        .andExpect(jsonPath("$.cpf").exists())
-        .andExpect(jsonPath("$.nome").exists())
-        .andExpect(jsonPath("$.telefone").exists())
-        .andExpect(jsonPath("$.email").exists())
-        .andExpect(jsonPath("$.endereco").exists())
-        .andExpect(jsonPath("$.endereco.rua").exists())
-        .andExpect(jsonPath("$.endereco.numero").exists())
-        .andExpect(jsonPath("$.endereco.cidade").exists())
-        .andExpect(jsonPath("$.endereco.bairro").exists())
-        .andExpect(jsonPath("$.endereco.estado").exists());
+                mvc,
+                (ME_ROUTE.concat("/endereco")),
+                enderecoDTOJson.write(requestBody).getJson())
+                // assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.nome").exists())
+                .andExpect(jsonPath("$.telefone").exists())
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.endereco").exists())
+                .andExpect(jsonPath("$.endereco.rua").exists())
+                .andExpect(jsonPath("$.endereco.numero").exists())
+                .andExpect(jsonPath("$.endereco.cidade").exists())
+                .andExpect(jsonPath("$.endereco.bairro").exists())
+                .andExpect(jsonPath("$.endereco.estado").exists());
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"USER", "ADMIN"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "USER", "ADMIN" })
     void testAtualizarEnderecoClienteMe_comRolesNaoAutorizadas() throws IOException, Exception {
         // arrange
         var requestBody = new AtualizarClienteDTO(
-            CLIENTE_DEFAULT.getNome(),
-            CLIENTE_DEFAULT.getTelefone(),
-            CLIENTE_DEFAULT.getEmail()
-        );
+                CLIENTE_DEFAULT.getNome(),
+                CLIENTE_DEFAULT.getTelefone(),
+                CLIENTE_DEFAULT.getEmail());
 
         // act
-        ControllerTestUtils.putRequest(mvc, ME_ROUTE.concat("/endereco"), atualizarClienteDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isForbidden());
+        ControllerTestUtils
+                .putRequest(mvc, ME_ROUTE.concat("/endereco"), atualizarClienteDTOJson.write(requestBody).getJson())
+                // assert
+                .andExpect(status().isForbidden());
 
         verifyNoInteractions(service);
     }
+
     @TestTemplate
-    @ContextualizeUsuarioTypeWithRoles(roles = {"CLIENT"})
+    @ContextualizeUsuarioTypeWithRoles(roles = { "CLIENT" })
     void testAtualizarEnderecoClienteMe_comBodyInvalido() throws IOException, Exception {
         // arrange
         var requestBody = new EnderecoDTO();
@@ -641,9 +644,10 @@ public class ClienteControllerUnitTest {
         when(service.editarEnderecoCliente(anyLong(), any())).thenReturn(responseBody);
 
         // act
-        ControllerTestUtils.putRequest(mvc, (ME_ROUTE.concat("/endereco")), enderecoDTOJson.write(requestBody).getJson())
-            // assert
-            .andExpect(status().isBadRequest());
+        ControllerTestUtils
+                .putRequest(mvc, (ME_ROUTE.concat("/endereco")), enderecoDTOJson.write(requestBody).getJson())
+                // assert
+                .andExpect(status().isBadRequest());
 
         verifyNoInteractions(service);
     }

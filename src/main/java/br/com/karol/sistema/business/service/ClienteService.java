@@ -30,15 +30,14 @@ import lombok.AllArgsConstructor;
 public class ClienteService {
 
     private static final String NOT_FOUND_MESSAGE = "Cliente não encontrado";
-    
+
     private final ClienteRepository repository;
     private final ClienteMapper clienteMapper;
     private final TelefoneFactory telefoneMapper;
     private final EmailFactory emailMapper;
     private final EnderecoMapper enderecoMapper;
     private final UsuarioService usuarioService;
-    private final TokenService tokenService;
-
+    private final VerificationService verificationService;
 
     @Transactional
     public DadosCompletosClienteDTO salvarCliente(CriarClienteDTO dadosCriacaoCliente) {
@@ -46,19 +45,17 @@ public class ClienteService {
         Cliente savedCliente = repository.save(cliente);
         return clienteMapper.toDadosCompletosClienteDTO(savedCliente);
     }
-    
+
     @Transactional
     public DadosCompletosClienteDTO salvarClienteComUsuario(CriarUsuarioClienteDTO dados) {
-        Usuario usuario = this.usuarioService.salvarUsuarioCliente(
-            new CriarUsuarioDTO(
-                dados.getNome(), 
-                dados.getLogin(), 
-                dados.getSenha()
-            )
-        );
+        verificationService.validateCode(dados.getEmail(), dados.getVerificationCode());
 
-        String emailDecoded = tokenService.validateToken(dados.getEmailConfirmationToken());
-        dados.setEmailConfirmationToken(emailDecoded);
+        Usuario usuario = this.usuarioService.salvarUsuarioCliente(
+                new CriarUsuarioDTO(
+                        dados.getNome(),
+                        dados.getLogin(),
+                        dados.getSenha()));
+
         Cliente cliente = clienteMapper.toClienteComUsuario(dados, usuario);
 
         Cliente savedCliente = repository.save(cliente);
@@ -67,7 +64,7 @@ public class ClienteService {
 
     public Page<DadosClienteDTO> listarTodosClientes(String nome, Pageable pageable) {
         return clienteMapper.toPageDadosClienteDTO(
-            repository.findAllByParams(nome, pageable));
+                repository.findAllByParams(nome, pageable));
     }
 
     public DadosCompletosClienteDTO buscarClientePorId(Long clienteId) {
@@ -78,16 +75,14 @@ public class ClienteService {
     @Transactional
     public DadosCompletosClienteDTO editarContatoCliente(Long clienteId, AtualizarClienteDTO dados) {
         Cliente alvo = this.buscarPorId(clienteId);
-        
+
         String novoNome = dados.getNome();
-        Telefone novoTelefone = 
-            telefoneMapper.toTelefoneOrNull(dados.getTelefone());
+        Telefone novoTelefone = telefoneMapper.toTelefoneOrNull(dados.getTelefone());
         Email novoEmail = emailMapper.toEmailOrNull(dados.getEmail());
         alvo.atualizarDados(
-            novoNome, 
-            novoTelefone, 
-            novoEmail
-        );
+                novoNome,
+                novoTelefone,
+                novoEmail);
 
         return clienteMapper.toDadosCompletosClienteDTO(repository.save(alvo));
     }
@@ -95,15 +90,13 @@ public class ClienteService {
     @Transactional
     public DadosCompletosClienteDTO editarContatoClienteAtual(Cliente cliente, AtualizarClienteDTO dados) {
         String novoNome = dados.getNome();
-        Telefone novoTelefone = 
-            telefoneMapper.toTelefoneOrNull(dados.getTelefone());
+        Telefone novoTelefone = telefoneMapper.toTelefoneOrNull(dados.getTelefone());
         Email novoEmail = emailMapper.toEmailOrNull(dados.getEmail());
-        
+
         cliente.atualizarDados(
-            novoNome, 
-            novoTelefone, 
-            novoEmail
-        );
+                novoNome,
+                novoTelefone,
+                novoEmail);
 
         return clienteMapper.toDadosCompletosClienteDTO(repository.save(cliente));
     }
@@ -134,11 +127,11 @@ public class ClienteService {
 
     public Cliente getClienteByUsuarioId(Long usuarioId) {
         return repository
-            .findByUsuarioId(usuarioId).orElseThrow(EntityNotFoundException::new);
+                .findByUsuarioId(usuarioId).orElseThrow(EntityNotFoundException::new);
     }
 
     public Cliente buscarPorId(Long id) {
         return repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException(NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new EntityNotFoundException(NOT_FOUND_MESSAGE));
     }
 }

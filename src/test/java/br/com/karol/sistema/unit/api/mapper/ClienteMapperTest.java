@@ -51,21 +51,19 @@ public class ClienteMapperTest {
         ReflectionTestUtils.setField(DEFAULT, "usuario", USUARIO_DEFAULT);
     }
 
-
     @Test
     void testToCliente() {
         // arrange
         EnderecoDTO enderecoDTO = new EnderecoDTO(DEFAULT.getEndereco());
         CriarClienteDTO dto = new CriarClienteDTO(
-            DEFAULT.getCpf(), 
-            DEFAULT.getNome(), 
-            DEFAULT.getTelefone(), 
-            DEFAULT.getEmail(), 
-            enderecoDTO
-        );
+                DEFAULT.getCpf(),
+                DEFAULT.getNome(),
+                DEFAULT.getTelefone(),
+                DEFAULT.getEmail(),
+                enderecoDTO);
 
         when(clientFactory.criarCliente(anyString(), anyString(), anyString(), anyString(), any()))
-            .thenReturn(DEFAULT);
+                .thenReturn(DEFAULT);
         when(enderecoMapper.toEndereco(any())).thenReturn(enderecoDefault);
 
         // act
@@ -83,17 +81,17 @@ public class ClienteMapperTest {
         // arrange
         EnderecoDTO enderecoDTO = new EnderecoDTO(DEFAULT.getEndereco());
         CriarUsuarioClienteDTO dto = new CriarUsuarioClienteDTO(
-            DEFAULT.getNome(), 
-            USUARIO_DEFAULT.getLogin(),
-            USUARIO_DEFAULT.getSenha(),
-            DEFAULT.getCpf(), 
-            DEFAULT.getTelefone(), 
-            enderecoDTO,
-            DEFAULT.getEmail()
-        );
+                DEFAULT.getNome(),
+                USUARIO_DEFAULT.getLogin(),
+                USUARIO_DEFAULT.getSenha(),
+                DEFAULT.getCpf(),
+                DEFAULT.getTelefone(),
+                enderecoDTO,
+                DEFAULT.getEmail(),
+                "123456");
 
         when(clientFactory.criarClienteComUsuario(anyString(), anyString(), anyString(), anyString(), any(), any()))
-            .thenReturn(DEFAULT);
+                .thenReturn(DEFAULT);
         when(enderecoMapper.toEndereco(any())).thenReturn(enderecoDefault);
 
         // act
@@ -103,7 +101,7 @@ public class ClienteMapperTest {
         assertEquals(dto.getCpf(), result.getCpf());
         assertEquals(dto.getNome(), result.getNome());
         assertEquals(dto.getTelefone(), result.getTelefone());
-        assertEquals(dto.getEmailConfirmationToken(), result.getEmail());
+        assertEquals(dto.getEmail(), result.getEmail());
         assertEquals(USUARIO_DEFAULT.getLogin(), result.getUsuario().getLogin());
         assertEquals(USUARIO_DEFAULT.getSenha(), result.getUsuario().getSenha());
     }
