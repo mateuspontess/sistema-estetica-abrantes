@@ -10,6 +10,9 @@ COPY .mvn .mvn
 COPY mvnw .
 COPY pom.xml .
 
+# Fix line endings for Windows and make executable
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
+
 # Executa o Maven para construir o projeto, ignorando os testes
 RUN ./mvnw clean install -DskipTests
 
