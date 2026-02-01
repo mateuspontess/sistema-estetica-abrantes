@@ -18,46 +18,45 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Autowired
     SecurityFilter securityFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(HttpMethod.POST, "/auth").permitAll()
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/usuarios").authenticated()
-                .requestMatchers(HttpMethod.PATCH, "/usuarios/nome").authenticated()
-                .requestMatchers(HttpMethod.PATCH, "/usuarios/senha").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/usuarios").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/usuarios/nome").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/usuarios/senha").authenticated()
 
-                .requestMatchers(HttpMethod.POST, "/usuarios").hasRole("ADMIN")
-                .requestMatchers("/usuarios/admin/**").hasRole("ADMIN")                
+                        .requestMatchers(HttpMethod.POST, "/usuarios").hasRole("ADMIN")
+                        .requestMatchers("/usuarios/admin/**").hasRole("ADMIN")
 
+                        .requestMatchers("/clientes/email/**", "/clientes/usuario/**").permitAll()
+                        .requestMatchers("/clientes/me/**").hasAnyRole("CLIENT")
+                        .requestMatchers("/clientes/**").hasAnyRole("USER", "ADMIN")
 
-                .requestMatchers("/clientes/email/**", "/clientes/usuario/**").permitAll()
-                .requestMatchers("/clientes/me/**").hasAnyRole("CLIENT")
-                .requestMatchers("/clientes/**").hasAnyRole("USER", "ADMIN")
-                
+                        .requestMatchers(HttpMethod.GET, "/procedimentos/**").permitAll()
+                        .requestMatchers("/procedimentos/**").hasRole("ADMIN")
 
-                .requestMatchers(HttpMethod.GET, "/procedimentos/**").permitAll()
-                .requestMatchers("/procedimentos/**").hasRole("ADMIN")
+                        .requestMatchers("/agendamentos/disponibilidade").authenticated()
+                        .requestMatchers("/agendamentos/me/**").hasRole("CLIENT")
+                        .requestMatchers("/agendamentos/**").hasAnyRole("USER", "ADMIN")
 
-                .requestMatchers("/agendamentos/disponibilidade").authenticated()
-                .requestMatchers("/agendamentos/me/**").hasRole("CLIENT")
-                .requestMatchers("/agendamentos/**").hasAnyRole("USER", "ADMIN")
-
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+                        .anyRequest().authenticated())
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
